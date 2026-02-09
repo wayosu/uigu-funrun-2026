@@ -3,10 +3,13 @@
 namespace App\Filament\Exports;
 
 use App\Models\Participant;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
 use Illuminate\Support\Number;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\Style;
 
 class ParticipantExporter extends Exporter
 {
@@ -122,5 +125,21 @@ class ParticipantExporter extends Exporter
         return [
             'chunkSize' => 500,
         ];
+    }
+
+    public function getFormats(): array
+    {
+        return [
+            ExportFormat::Xlsx,
+        ];
+    }
+
+    public function getXlsxHeaderCellStyle(): ?Style
+    {
+        return (new Style)
+            ->setFontBold()
+            ->setFontSize(12)
+            ->setBackgroundColor(Color::rgb(0, 154, 166))
+            ->setFontColor(Color::rgb(255, 255, 255));
     }
 }

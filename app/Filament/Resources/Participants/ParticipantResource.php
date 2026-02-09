@@ -11,6 +11,7 @@ use App\Models\Participant;
 use BackedEnum;
 use Filament\Actions\ExportAction;
 use Filament\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -210,17 +211,12 @@ class ParticipantResource extends Resource
             ->bulkActions([
                 ExportBulkAction::make()
                     ->exporter(ParticipantExporter::class)
-                    ->label('Export Selected')
+                    ->label('Export to Excel')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
+                    ->formats([ExportFormat::Xlsx])
                     ->fileName(fn (): string => 'participants_'.now()->format('Y-m-d_His'))
-                    ->after(function () {
-                        \Filament\Notifications\Notification::make()
-                            ->title('Export Started')
-                            ->body('Your export has been queued. You will be notified when it is ready.')
-                            ->success()
-                            ->send();
-                    }),
+                    ->chunkSize(500),
             ])
             ->toolbarActions([
                 //
@@ -228,17 +224,12 @@ class ParticipantResource extends Resource
             ->headerActions([
                 ExportAction::make()
                     ->exporter(ParticipantExporter::class)
-                    ->label('Export All')
+                    ->label('Export to Excel')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('primary')
+                    ->formats([ExportFormat::Xlsx])
                     ->fileName(fn (): string => 'all_participants_'.now()->format('Y-m-d_His'))
-                    ->after(function () {
-                        \Filament\Notifications\Notification::make()
-                            ->title('Export Started')
-                            ->body('Your full export has been queued and will be processed. You will receive a notification when it is complete.')
-                            ->success()
-                            ->send();
-                    }),
+                    ->chunkSize(500),
             ]);
     }
 
