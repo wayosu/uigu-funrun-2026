@@ -5,8 +5,9 @@
     use Carbon\Carbon;
 
     // Status Logic Helper
-    $statusEnum = $registration->payment ? $registration->payment->status : PaymentStatus::PendingPayment;
-    $isRejected = $registration->payment && !empty($registration->payment->rejection_reason);
+    $statusEnum = $registration->status;
+    $latestPayment = $registration->payments()->latest()->first();
+    $isRejected = $latestPayment && !empty($latestPayment->rejection_reason);
 
     $statusTitle = 'Menunggu Pembayaran';
     $statusDesc = 'Silakan selesaikan pembayaran Anda.';
@@ -55,7 +56,7 @@
 
                         @if($isRejected)
                             <div class="mt-4 bg-white/20 backdrop-blur-sm rounded-xl p-4 max-w-lg mx-auto border border-white/30">
-                                <p class="text-white font-medium">Alasan: {{ $registration->payment->rejection_reason ?? 'Bukti pembayaran tidak terbaca atau tidak valid.' }}</p>
+                                <p class="text-white font-medium">Alasan: {{ $latestPayment->rejection_reason ?? 'Bukti pembayaran tidak terbaca atau tidak valid.' }}</p>
                                 <a href="{{ route('payment.show', ['registration' => $registration->registration_number]) }}" class="mt-3 inline-block px-6 py-2 bg-white text-red-600 font-bold rounded-full hover:bg-gray-100 transition-colors shadow-md">
                                     Unggah Ulang Bukti
                                 </a>
@@ -79,7 +80,7 @@
 
                             {{-- Step 2: Payment --}}
                             <div class="flex flex-col items-center">
-                                @if($registration->payment)
+                                @if($latestPayment)
                                     @if($isRejected)
                                         <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center ring-4 ring-white">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -139,8 +140,8 @@
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-500 mb-1">Nama & Email</p>
-                                        <p class="text-base font-bold text-gray-900">{{ $registration->user?->name ?? '-' }}</p>
-                                        <p class="text-sm text-gray-600">{{ $registration->user?->email ?? '-' }}</p>
+                                        <p class="text-base font-bold text-gray-900">{{ $registration->pic_name }}</p>
+                                        <p class="text-sm text-gray-600">{{ $registration->pic_email }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start group">
@@ -149,7 +150,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-500 mb-1">Nomor Telepon</p>
-                                        <p class="text-base font-medium text-gray-900">{{ $registration->user?->phone_number ?? '-' }}</p>
+                                        <p class="text-base font-medium text-gray-900">{{ $registration->pic_phone }}</p>
                                     </div>
                                 </div>
                             </div>

@@ -77,7 +77,11 @@ class PaymentController extends Controller
      */
     public function status(Registration $registration): View
     {
-        $registration->load(['participants', 'payments', 'raceCategory.event']);
+        $registration->load([
+            'participants',
+            'payments' => fn ($query) => $query->latest(),
+            'raceCategory.event',
+        ]);
 
         return view('payment.status', compact('registration'));
     }
