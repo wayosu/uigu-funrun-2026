@@ -48,7 +48,9 @@ class PaymentSettingResource extends Resource
                     ->maxLength(255),
                 FileUpload::make('qris_path')
                     ->image()
+                    ->disk('public')
                     ->directory('payment-settings/qris')
+                    ->visibility('public')
                     ->columnSpanFull(),
                 Textarea::make('instructions')
                     ->columnSpanFull(),

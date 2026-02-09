@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="bg-gray-50 min-h-screen py-16">
+    <div x-data="{ showQris: false, qrisUrl: '' }" class="bg-gray-50 min-h-screen py-16">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Header --}}
             <div class="text-center mb-12">
                 <span class="text-fun-teal font-bold tracking-widest uppercase text-xs mb-2 block">Konfirmasi Pembayaran</span>
                 <h1 class="text-3xl md:text-4xl font-black text-gray-900 font-heading">Selesaikan Pendaftaran Anda</h1>
-                
+
                 <div class="mt-8 flex flex-col items-center">
                     <div class="inline-flex flex-col items-center px-8 py-4 bg-white rounded-2xl shadow-sm border border-gray-100">
                         <span class="text-gray-400 text-xs font-bold uppercase tracking-wide mb-1">Nomor Registrasi</span>
@@ -51,18 +51,31 @@
                                 @foreach ($paymentSettings as $setting)
                                     <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
                                         <div class="absolute top-0 right-0 w-32 h-32 bg-fun-green/5 -mr-8 -mt-8 rounded-full z-0 group-hover:bg-fun-green/10 transition-colors duration-500"></div>
-                                        
+
                                         <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                                            @if ($setting->qris_path)
-                                                <div class="w-40 h-40 shrink-0 bg-white p-2 border border-gray-100 rounded-xl shadow-sm">
-                                                    <img src="{{ Storage::url($setting->qris_path) }}" alt="QRIS"
-                                                        class="w-full h-full object-contain">
+                                            @if ($setting->qris_path && Storage::disk('public')->exists($setting->qris_path))
+                                                <div class="w-40 h-40 shrink-0 bg-white p-2 border border-gray-100 rounded-xl shadow-sm cursor-pointer hover:shadow-md transition-shadow group/qris"
+                                                     @click="qrisUrl = '{{ Storage::url($setting->qris_path) }}'; showQris = true">
+                                                    <div class="relative w-full h-full">
+                                                        <img src="{{ Storage::url($setting->qris_path) }}" alt="QRIS"
+                                                            class="w-full h-full object-contain">
+                                                        <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover/qris:opacity-100 transition-opacity rounded-lg">
+                                                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @elseif($setting->qris_path)
+                                                <div class="w-40 h-40 shrink-0 bg-gray-100 p-4 border border-gray-200 rounded-xl shadow-sm flex items-center justify-center">
+                                                    <div class="text-center">
+                                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        <p class="text-xs text-gray-500 font-medium">QRIS tidak tersedia</p>
+                                                    </div>
                                                 </div>
                                             @endif
                                             <div class="flex-1 text-center sm:text-left">
                                                 <h3 class="font-bold text-xl text-gray-900 mb-1 font-heading">{{ $setting->bank_name }}</h3>
                                                 <p class="text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Nomor Rekening</p>
-                                                
+
                                                 <div class="flex items-center justify-center sm:justify-start gap-3 mb-4">
                                                     <p class="text-3xl font-mono font-bold text-fun-teal select-all tracking-tight">
                                                         {{ $setting->account_number }}</p>
@@ -73,7 +86,7 @@
                                                         </svg>
                                                     </button>
                                                 </div>
-                                                
+
                                                 <div class="inline-flex items-center bg-gray-50 rounded-lg px-4 py-2 border border-gray-100">
                                                     <p class="text-sm text-gray-500">Atas Nama: <span
                                                         class="font-bold text-gray-900">{{ $setting->account_name }}</span></p>
@@ -128,7 +141,7 @@
 
                             <div class="mb-8">
                                 <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Bukti Transfer (Gambar) <span class="text-red-500">*</span></label>
-                                
+
                                 <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-xl hover:border-fun-green hover:bg-fun-green/5 transition-all duration-300 group cursor-pointer bg-gray-50">
                                     <div class="space-y-1 text-center relative w-full">
                                         <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-fun-green transition-colors duration-300" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
@@ -184,6 +197,55 @@
                                 </svg>
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- QRIS Modal --}}
+        <div x-show="showQris"
+             style="display: none;"
+             class="fixed inset-0 z-[100] overflow-y-auto"
+             aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="showQris"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"
+                     @click="showQris = false"
+                     aria-hidden="true"></div>
+
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                <div x-show="showQris"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 relative">
+                        <button @click="showQris = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4 text-center" id="modal-title">
+                                Scan QRIS untuk Pembayaran
+                            </h3>
+                            <div class="mt-2 flex justify-center bg-gray-50 rounded-xl p-4">
+                                <img :src="qrisUrl" alt="QRIS Fullscreen" class="max-h-[60vh] object-contain rounded-lg shadow-sm">
+                            </div>
+                            <p class="text-xs text-gray-500 text-center mt-4">
+                                Pastikan nama merchant sesuai dengan nama rekening.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
