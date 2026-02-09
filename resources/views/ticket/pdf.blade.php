@@ -395,14 +395,7 @@
                         <div class="info-item">
                             <span class="info-label">Tanggal Pelaksanaan</span>
                             <span class="info-value" style="color: #00d285;">
-                                {{ $registration->raceCategory->event->date?->format("l, d F Y") ?? "To Be Announced" }}
-                            </span>
-                        </div>
-
-                        <div class="info-item">
-                            <span class="info-label">Waktu Start</span>
-                            <span class="info-value">
-                                {{ $registration->raceCategory->event->date?->format("H:i") ?? "TBA" }} WITA
+                                {{ $registration->raceCategory->event->date?->format("l, d F Y") ?? "Untuk Diumumkan" }}
                             </span>
                         </div>
 
@@ -449,7 +442,7 @@
                                 <div class="participant-name">{{ $participant->name }}</div>
                             </td>
                             <td style="text-align: center">
-                                <span style="font-weight: bold; color: #6b7280;">{{ $participant->jersey_size }}</span>
+                                <span style="font-weight: bold; color: #6b7280; text-transform: uppercase;">{{ $participant->jersey_size }}</span>
                             </td>
                             <td class="bib-container">
                                 @if($participant->bib_number)
