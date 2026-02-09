@@ -9,6 +9,15 @@
     $latestPayment = $registration->payments()->latest()->first();
     $isRejected = $latestPayment && !empty($latestPayment->rejection_reason);
 
+    // Payment Proof Image (Base64 for private storage)
+    $proofImageSrc = null;
+    if ($latestPayment && $latestPayment->proof_path && Storage::disk('local')->exists($latestPayment->proof_path)) {
+        $proofPath = Storage::disk('local')->path($latestPayment->proof_path);
+        $proofMime = mime_content_type($proofPath) ?: 'image/jpeg';
+        $proofBase64 = base64_encode(file_get_contents($proofPath));
+        $proofImageSrc = "data:{$proofMime};base64,{$proofBase64}";
+    }
+
     $statusTitle = 'Menunggu Pembayaran';
     $statusDesc = 'Silakan selesaikan pembayaran Anda.';
     $statusColor = 'bg-yellow-100 text-yellow-700';
@@ -226,13 +235,13 @@
                     </div>
 
                     {{-- Payment Proof Preview --}}
-                    @if($latestPayment && $latestPayment->proof_path)
+                    @if($latestPayment && $latestPayment->proof_path && $proofImageSrc)
                         <div class="mt-10">
                             <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100">Bukti Pembayaran</h4>
                             <div class="bg-gray-50 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6">
                                 <div class="relative group cursor-pointer flex-shrink-0" @click="showProofModal = true">
                                     <div class="w-48 h-48 rounded-lg overflow-hidden border-2 border-gray-200 shadow-md">
-                                        <img src="{{ Storage::url($latestPayment->proof_path) }}"
+                                        <img src="{{ $proofImageSrc }}"
                                              alt="Bukti Pembayaran"
                                              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                                     </div>
@@ -309,26 +318,7 @@
                                                     <p class="text-xs text-gray-500">{{ $payment->created_at->diffForHumans() }}</p>
                                                 </div>
                                             </div>
-                                            @if($payment->proof_path)
-                                                <a href="{{ Storage::url($payment->proof_path) }}"
-                                                   target="_blank"
-                                                   class="text-fun-green hover:text-fun-teal text-xs font-medium">
-                                                    Lihat
-                                                </a>
-                                            @endif
-                                        </div>
 
-                                        <div class="grid grid-cols-2 gap-3 text-sm">
-                                            <div>
-                                                <span class="text-gray-500">Jumlah:</span>
-                                                <span class="font-medium text-gray-900">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-500">Status:</span>
-                                                @if($payment->verified_at)
-                                                    <span class="inline-flex items-center text-fun-green font-medium">
-                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                        Terverifikasi
                                                     </span>
                                                 @elseif($payment->rejection_reason)
                                                     <span class="inline-flex items-center text-red-600 font-medium">
@@ -417,7 +407,7 @@
         </div>
 
         {{-- Payment Proof Modal --}}
-        @if($latestPayment && $latestPayment->proof_path)
+        @if($latestPayment && $latestPayment->proof_path && $proofImageSrc)
             <div x-show="showProofModal"
                  x-cloak
                  @click.self="showProofModal = false"
@@ -439,7 +429,7 @@
                     {{-- Modal Body --}}
                     <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
                         <div class="bg-gray-50 rounded-xl p-4 mb-6">
-                            <img src="{{ Storage::url($latestPayment->proof_path) }}"
+                            <img src="{{ $proofImageSrc }}"
                                  alt="Bukti Pembayaran"
                                  class="w-full h-auto rounded-lg shadow-lg">
                         </div>
