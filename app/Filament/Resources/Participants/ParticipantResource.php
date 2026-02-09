@@ -207,14 +207,39 @@ class ParticipantResource extends Resource
             ->recordActions([
                 ViewAction::make(),
             ])
+            ->bulkActions([
+                ExportBulkAction::make()
+                    ->exporter(ParticipantExporter::class)
+                    ->label('Export Selected')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->fileName(fn (): string => 'participants_'.now()->format('Y-m-d_His'))
+                    ->after(function () {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Export Started')
+                            ->body('Your export has been queued. You will be notified when it is ready.')
+                            ->success()
+                            ->send();
+                    }),
+            ])
             ->toolbarActions([
                 //
             ])
             ->headerActions([
                 ExportAction::make()
-                    ->exporter(ParticipantExporter::class),
+                    ->exporter(ParticipantExporter::class)
+                    ->label('Export All')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('primary')
+                    ->fileName(fn (): string => 'all_participants_'.now()->format('Y-m-d_His'))
+                    ->after(function () {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Export Started')
+                            ->body('Your full export has been queued and will be processed. You will receive a notification when it is complete.')
+                            ->success()
+                            ->send();
+                    }),
             ]);
-        // Note: ExportBulkAction requires Filament Tables ExportBulkAction which is likely Filament\Tables\Actions\ExportBulkAction
     }
 
     public static function getPages(): array
