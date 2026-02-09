@@ -395,7 +395,7 @@
                         <div class="info-item">
                             <span class="info-label">Tanggal Pelaksanaan</span>
                             <span class="info-value" style="color: #00d285;">
-                                {{ $registration->raceCategory->event->date?->format("l, d F Y") ?? "Untuk Diumumkan" }}
+                                {{ $registration->raceCategory->event->date?->locale('id')->translatedFormat("l, d F Y") ?? "Untuk Diumumkan" }}
                             </span>
                         </div>
 

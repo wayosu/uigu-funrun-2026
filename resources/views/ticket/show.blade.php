@@ -59,7 +59,7 @@
                                         <span class="text-xs font-bold uppercase tracking-wide text-gray-400">Tanggal</span>
                                     </div>
                                     <p class="text-xl font-bold text-gray-900 ml-11">
-                                        {{ $registration->raceCategory->event->date?->format('l, d F Y') ?? 'TBA' }}
+                                        {{ $registration->raceCategory->event->date?->locale('id')->translatedFormat('l, d F Y') ?? 'Untuk Diumumkan' }}
                                     </p>
                                 </div>
 
@@ -121,7 +121,7 @@
                                     </div>
                                     <div>
                                         <p class="text-base font-bold text-gray-900">{{ $participant->name }}</p>
-                                        <p class="text-xs text-gray-500 font-medium mt-0.5 uppercase tracking-wide">Jersey: <span class="font-bold text-gray-800">{{ $participant->jersey_size }}</span></p>
+                                        <p class="text-xs text-gray-500 font-medium mt-0.5 uppercase tracking-wide">Ukuran Jersey: <span class="font-bold text-gray-800">{{ $participant->jersey_size }}</span></p>
                                     </div>
                                 </div>
                                 <div class="text-right">
