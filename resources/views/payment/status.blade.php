@@ -318,7 +318,19 @@
                                                     <p class="text-xs text-gray-500">{{ $payment->created_at->diffForHumans() }}</p>
                                                 </div>
                                             </div>
+                                        </div>
 
+                                        <div class="grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <span class="text-gray-500">Jumlah:</span>
+                                                <span class="font-medium text-gray-900">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">Status:</span>
+                                                @if($payment->verified_at)
+                                                    <span class="inline-flex items-center text-fun-green font-medium">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                        Terverifikasi
                                                     </span>
                                                 @elseif($payment->rejection_reason)
                                                     <span class="inline-flex items-center text-red-600 font-medium">
