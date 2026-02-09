@@ -128,11 +128,23 @@
                                     </div>
                                 </div>
 
-                                <a href="{{ route('registration.form', ['category' => $category->id]) }}"
-                                   class="block w-full py-4 rounded-xl font-bold text-center text-sm uppercase tracking-widest transition-all duration-300
-                                          bg-gray-900 text-white hover:bg-gradient-to-r hover:from-fun-green hover:to-fun-teal hover:shadow-lg">
-                                    Daftar Kategori Ini
-                                </a>
+                                @php
+                                    $state = $categoryStates[$category->id] ?? ['state' => 'open', 'label' => 'Daftar Kategori Ini', 'disabled' => false];
+                                @endphp
+
+                                @if($state['disabled'])
+                                    <button disabled
+                                        class="block w-full py-4 rounded-xl font-bold text-center text-sm uppercase tracking-widest transition-all duration-300
+                                                bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200">
+                                        {{ $state['label'] }}
+                                    </button>
+                                @else
+                                    <a href="{{ route('registration.form', ['category' => $category->id]) }}"
+                                    class="block w-full py-4 rounded-xl font-bold text-center text-sm uppercase tracking-widest transition-all duration-300
+                                            bg-gray-900 text-white hover:bg-gradient-to-r hover:from-fun-green hover:to-fun-teal hover:shadow-lg">
+                                        {{ $state['label'] }}
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -182,12 +194,29 @@
         </div>
 
     @else
-        <div class="min-h-screen flex items-center justify-center bg-gray-50 text-center px-4">
-            <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-6 animate-pulse">
+        <div class="flex-grow flex flex-col items-center justify-center min-h-[60vh] py-20 bg-gray-50 text-center px-4">
+             <div class="mb-8 relative group">
+                <div class="absolute inset-0 bg-fun-teal blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500 rounded-full"></div>
+                <img src="{{ asset('assets/logo-event-1.png') }}"
+                        alt="UIGU Fun Run"
+                        class="relative h-24 md:h-32 w-auto grayscale opacity-80 mb-6 mx-auto">
+            </div>
+
+            <div class="w-20 h-20 bg-gray-200/50 rounded-full flex items-center justify-center mb-6 animate-pulse mx-auto">
                 <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Event Belum Tersedia</h1>
-            <p class="text-gray-500 max-w-md mx-auto">Mohon kembali lagi nanti untuk informasi event selanjutnya.</p>
+            <h1 class="text-3xl md:text-4xl font-black text-gray-800 mb-4 font-heading tracking-tight">Event Belum Tersedia</h1>
+            <p class="text-gray-500 max-w-lg mx-auto text-lg leading-relaxed">
+                Saat ini belum ada event lari yang aktif. <br>
+                Ikuti media sosial kami untuk update informasi terbaru.
+            </p>
+
+            <div class="mt-8 flex gap-4 justify-center">
+                 <a href="https://www.instagram.com/uigu_funrun2026/" target="_blank" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-gradient-to-r from-fun-green to-fun-teal hover:from-green-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fun-green transition-all duration-300 transform hover:-translate-y-1">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></path></svg>
+                    @uigu_funrun2026
+                </a>
+            </div>
         </div>
     @endif
 @endsection
