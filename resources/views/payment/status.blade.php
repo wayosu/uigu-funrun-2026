@@ -14,7 +14,7 @@
     $statusColor = 'bg-yellow-100 text-yellow-700';
     $statusIcon = 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'; // Clock
 
-    if ($registration->payment) {
+    if ($latestPayment) {
         if ($statusEnum === PaymentStatus::PaymentVerified) {
             $statusTitle = 'Pembayaran Berhasil';
             $statusDesc = 'Pendaftaran Anda telah dikonfirmasi.';
@@ -35,7 +35,7 @@
 @endphp
 
 @section('content')
-    <div class="min-h-screen bg-gray-50/50 py-12">
+    <div x-data="{ showProofModal: false }" class="min-h-screen bg-gray-50/50 py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Status Card Header --}}
@@ -53,6 +53,24 @@
                         </div>
                         <h1 class="text-3xl font-heading font-bold text-white mb-2">{{ $statusTitle }}</h1>
                         <p class="text-fun-yellow font-medium text-lg">{{ $statusDesc }}</p>
+
+                        {{-- Expired Warning or Upload Button --}}
+                        @if($statusEnum === PaymentStatus::PendingPayment && !$latestPayment)
+                            <div class="mt-4 bg-white/20 backdrop-blur-sm rounded-xl p-4 max-w-lg mx-auto border border-white/30">
+                                @if($registration->expired_at)
+                                    <p class="text-white font-medium mb-3">
+                                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Batas Waktu: <span class="font-bold">{{ $registration->expired_at->format('d M Y H:i') }}</span>
+                                    </p>
+                                    @if($registration->expired_at->isFuture())
+                                        <p class="text-fun-yellow text-sm mb-3">{{ $registration->expired_at->diffForHumans() }}</p>
+                                    @endif
+                                @endif
+                                <a href="{{ route('payment.show', $registration->registration_number) }}" class="inline-block px-6 py-2 bg-white text-fun-green font-bold rounded-full hover:bg-gray-100 transition-colors shadow-md">
+                                    Upload Bukti Pembayaran
+                                </a>
+                            </div>
+                        @endif
 
                         @if($isRejected)
                             <div class="mt-4 bg-white/20 backdrop-blur-sm rounded-xl p-4 max-w-lg mx-auto border border-white/30">
@@ -172,6 +190,31 @@
                                     </div>
                                 @endif
 
+                                {{-- Payment Timeline Info --}}
+                                @if($latestPayment)
+                                    <div class="border-t border-gray-200 pt-4 space-y-3">
+                                        <div class="flex items-start text-sm">
+                                            <svg class="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <div>
+                                                <span class="text-gray-500 block">Bukti Diupload</span>
+                                                <span class="text-gray-900 font-medium">{{ $latestPayment->created_at->format('d M Y H:i') }}</span>
+                                                <span class="text-gray-400 text-xs block">{{ $latestPayment->created_at->diffForHumans() }}</span>
+                                            </div>
+                                        </div>
+
+                                        @if($latestPayment->verified_at)
+                                            <div class="flex items-start text-sm">
+                                                <svg class="w-4 h-4 text-fun-green mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                <div>
+                                                    <span class="text-gray-500 block">Diverifikasi</span>
+                                                    <span class="text-fun-green font-medium">{{ $latestPayment->verified_at->format('d M Y H:i') }}</span>
+                                                    <span class="text-gray-400 text-xs block">{{ $latestPayment->verified_at->diffForHumans() }}</span>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
                                 <div class="border-t border-gray-200 pt-4 flex justify-between items-center">
                                     <span class="text-gray-600 font-medium">Total Tagihan</span>
                                     <span class="text-2xl font-heading font-bold text-fun-green">
@@ -181,6 +224,144 @@
                              </div>
                         </div>
                     </div>
+
+                    {{-- Payment Proof Preview --}}
+                    @if($latestPayment && $latestPayment->proof_path)
+                        <div class="mt-10">
+                            <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100">Bukti Pembayaran</h4>
+                            <div class="bg-gray-50 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                                <div class="relative group cursor-pointer flex-shrink-0" @click="showProofModal = true">
+                                    <div class="w-48 h-48 rounded-lg overflow-hidden border-2 border-gray-200 shadow-md">
+                                        <img src="{{ Storage::url($latestPayment->proof_path) }}"
+                                             alt="Bukti Pembayaran"
+                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                    </div>
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div>
+                                            <p class="text-sm text-gray-500 mb-1">Status Bukti</p>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $statusColor }}">
+                                                @if($statusEnum === PaymentStatus::PaymentVerified)
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                    Terverifikasi
+                                                @elseif($statusEnum === PaymentStatus::PaymentUploaded)
+                                                    <svg class="w-3 h-3 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                    Sedang Diverifikasi
+                                                @elseif($isRejected)
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    Ditolak
+                                                @endif
+                                            </span>
+                                        </div>
+                                        <button @click="showProofModal = true" class="text-fun-green hover:text-fun-teal text-sm font-medium flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            Lihat Detail
+                                        </button>
+                                    </div>
+                                    @if($isRejected && $latestPayment->rejection_reason)
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mt-3">
+                                            <p class="text-xs font-bold text-red-700 uppercase tracking-wide mb-1">Alasan Penolakan</p>
+                                            <p class="text-sm text-red-600">{{ $latestPayment->rejection_reason }}</p>
+                                        </div>
+                                    @endif
+                                    @if($latestPayment->verifier)
+                                        <p class="text-xs text-gray-500 mt-3">
+                                            Diverifikasi oleh: <span class="font-medium text-gray-700">{{ $latestPayment->verifier->name }}</span>
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Payment History (if multiple uploads) --}}
+                    @if($registration->payments->count() > 1)
+                        <div class="mt-10" x-data="{ showHistory: false }">
+                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
+                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Riwayat Upload ({{ $registration->payments->count() }} kali)</h4>
+                                <button @click="showHistory = !showHistory" class="text-fun-green hover:text-fun-teal text-sm font-medium flex items-center">
+                                    <span x-text="showHistory ? 'Sembunyikan' : 'Tampilkan'"></span>
+                                    <svg class="w-4 h-4 ml-1 transition-transform" :class="showHistory && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                            </div>
+
+                            <div x-show="showHistory"
+                                 x-collapse
+                                 class="space-y-4">
+                                @foreach($registration->payments()->latest()->get() as $index => $payment)
+                                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 {{ $loop->first ? 'ring-2 ring-fun-green/20' : '' }}">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div class="flex items-center">
+                                                <span class="text-xs font-bold text-gray-400 mr-3">#{{ $loop->iteration }}</span>
+                                                <div>
+                                                    <p class="text-sm font-bold text-gray-900">
+                                                        {{ $payment->created_at->format('d M Y, H:i') }}
+                                                        @if($loop->first)
+                                                            <span class="ml-2 text-xs bg-fun-green text-white px-2 py-0.5 rounded-full">Terbaru</span>
+                                                        @endif
+                                                    </p>
+                                                    <p class="text-xs text-gray-500">{{ $payment->created_at->diffForHumans() }}</p>
+                                                </div>
+                                            </div>
+                                            @if($payment->proof_path)
+                                                <a href="{{ Storage::url($payment->proof_path) }}"
+                                                   target="_blank"
+                                                   class="text-fun-green hover:text-fun-teal text-xs font-medium">
+                                                    Lihat
+                                                </a>
+                                            @endif
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <span class="text-gray-500">Jumlah:</span>
+                                                <span class="font-medium text-gray-900">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">Status:</span>
+                                                @if($payment->verified_at)
+                                                    <span class="inline-flex items-center text-fun-green font-medium">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                        Terverifikasi
+                                                    </span>
+                                                @elseif($payment->rejection_reason)
+                                                    <span class="inline-flex items-center text-red-600 font-medium">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                        Ditolak
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center text-blue-600 font-medium">
+                                                        <svg class="w-3 h-3 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                        Menunggu Verifikasi
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @if($payment->rejection_reason)
+                                            <div class="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                                                <p class="text-xs font-bold text-red-700 uppercase tracking-wide mb-1">Alasan Penolakan</p>
+                                                <p class="text-xs text-red-600">{{ $payment->rejection_reason }}</p>
+                                            </div>
+                                        @endif
+
+                                        @if($payment->verifier)
+                                            <p class="text-xs text-gray-500 mt-3">
+                                                <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                                {{ $payment->verifier->name }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- Team Members Table --}}
                     @if(in_array($registration->registration_type, \App\Enums\RegistrationType::collectiveTypes(), true) && $registration->participants->count() > 0)
@@ -234,5 +415,69 @@
                 </a>
             </div>
         </div>
+
+        {{-- Payment Proof Modal --}}
+        @if($latestPayment && $latestPayment->proof_path)
+            <div x-show="showProofModal"
+                 x-cloak
+                 @click.self="showProofModal = false"
+                 @keydown.escape.window="showProofModal = false"
+                 class="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                 style="display: none;">
+                <div @click.stop class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                    {{-- Modal Header --}}
+                    <div class="bg-gradient-to-r from-fun-green to-fun-teal px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <h3 class="text-xl font-heading font-bold text-white">Bukti Pembayaran</h3>
+                        </div>
+                        <button @click="showProofModal = false" class="text-white hover:text-fun-yellow transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    {{-- Modal Body --}}
+                    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                        <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                            <img src="{{ Storage::url($latestPayment->proof_path) }}"
+                                 alt="Bukti Pembayaran"
+                                 class="w-full h-auto rounded-lg shadow-lg">
+                        </div>
+
+                        {{-- Payment Info --}}
+                        <div class="grid grid-cols-2 gap-4 bg-white border border-gray-200 rounded-lg p-4">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Jumlah</p>
+                                <p class="text-lg font-bold text-gray-900">Rp {{ number_format($latestPayment->amount, 0, ',', '.') }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Upload</p>
+                                <p class="text-sm font-medium text-gray-900">{{ $latestPayment->created_at->format('d M Y H:i') }}</p>
+                            </div>
+                            @if($latestPayment->verified_at)
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Verifikasi</p>
+                                    <p class="text-sm font-medium text-fun-green">{{ $latestPayment->verified_at->format('d M Y H:i') }}</p>
+                                </div>
+                            @endif
+                            @if($latestPayment->verifier)
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Verifikator</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ $latestPayment->verifier->name }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Modal Footer --}}
+                    <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t border-gray-200">
+                        <p class="text-xs text-gray-500">ID: {{ $registration->registration_number }}</p>
+                        <button @click="showProofModal = false" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 @endsection
