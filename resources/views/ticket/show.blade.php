@@ -1,130 +1,156 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="bg-gray-50 min-h-screen py-10 print:bg-white print:py-0">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-6 print:hidden">
-                <a href="{{ route('ticket.download', $registration->registration_number) }}" class="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-sm font-bold rounded-full text-white bg-fun-teal hover:bg-teal-600 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fun-teal">
-                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Unduh PDF (Cetak)
-                </a>
-                <a href="{{ url('/') }}" class="ml-4 text-gray-500 hover:text-fun-green text-sm font-medium">Kembali</a>
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 print:bg-white print:p-0">
+    <div class="max-w-3xl mx-auto print:max-w-none">
+        <!-- Navigation & Actions -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 print:hidden">
+            <a href="{{ route('filament.admin.auth.login') }}" class="text-sm font-medium text-gray-500 hover:text-[#00d285] transition-colors mb-4 sm:mb-0">
+                &larr; Kembali ke Dashboard
+            </a>
+            <a href="{{ route('ticket.download', $registration->registration_number) }}"
+               class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-[#00d285] hover:bg-[#00b874] shadow-lg shadow-teal-500/20 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00d285]">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Download PDF
+            </a>
+        </div>
+
+        <!-- Ticket Card -->
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 print:shadow-none print:border print:border-gray-300">
+            <!-- Header with Gradient -->
+            <div class="relative bg-gradient-to-br from-[#00d285] to-[#009aa6] p-8 sm:p-10 text-white overflow-hidden print:bg-white print:text-black print:border-b print:border-gray-200">
+                <!-- Decorative Elements -->
+                <div class="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl print:hidden"></div>
+                <div class="absolute bottom-0 left-0 -mb-16 -ml-16 w-40 h-40 bg-[#f8c400] opacity-20 rounded-full blur-2xl print:hidden"></div>
+
+                <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3 mb-4">
+                            @if(file_exists(public_path('assets/logo-event-1.png')))
+                                <img src="{{ asset('assets/logo-event-1.png') }}" alt="UIGU Logo" class="h-10 bg-white rounded-lg p-1 shadow-sm print:hidden">
+                            @endif
+                            <span class="bg-[#f8c400] text-gray-900 text-xs font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm print:border print:border-black">
+                                {{ $registration->raceCategory->name }}
+                            </span>
+                        </div>
+                        <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-2 font-heading leading-tight drop-shadow-sm print:text-black">
+                            {{ $registration->raceCategory->event->name ?? 'UIGU FUN RUN' }}
+                        </h1>
+                        <p class="text-teal-50 font-bold tracking-widest uppercase text-sm print:text-gray-500">Official E-Ticket</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-white rounded-3xl shadow-xl overflow-hidden print:shadow-none print:border print:border-gray-200">
-                {{-- Ticket Header --}}
-                <div class="bg-gradient-to-r from-fun-green to-fun-teal px-8 py-8 flex flex-col sm:flex-row justify-between items-center print:bg-white print:border-b print:border-gray-300 relative overflow-hidden">
-                     {{-- Decorative Shapes --}}
-                    <div class="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-white/10 rounded-full blur-3xl print:hidden"></div>
-                    <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-32 h-32 bg-fun-yellow/20 rounded-full blur-2xl print:hidden"></div>
+            <!-- Body -->
+            <div class="p-8 sm:p-10 bg-white print:p-0 print:mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+                    <!-- Event Details -->
+                    <div class="md:col-span-2 space-y-8">
+                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100 pb-3 mb-6">Detail Acara</h3>
 
-                    <div class="relative z-10 flex items-center gap-4 mb-4 sm:mb-0">
-                        {{-- Use asset logo if available --}}
-                         <img src="{{ asset('assets/logo-event-1.png') }}" class="h-16 w-auto bg-white rounded-lg p-2 object-contain shadow-sm" alt="Logo">
-                         <div class="text-white print:text-black">
-                            <h1 class="text-2xl font-black tracking-widest leading-none">E-TICKET</h1>
-                            <span class="text-fun-yellow font-bold print:text-black block text-sm tracking-wide">{{ $registration->raceCategory->event->name ?? 'UIGU FUN RUN' }}</span>
-                         </div>
-                    </div>
-                    <div class="relative z-10 text-center sm:text-right">
-                         <span class="text-white/80 text-xs font-bold uppercase tracking-wider block mb-1">Kategori Tiket</span>
-                         <span class="bg-fun-yellow text-fun-dark px-4 py-1 rounded-full font-heading font-black text-lg uppercase shadow-sm print:bg-transparent print:border print:border-black">{{ $registration->raceCategory->name }}</span>
-                    </div>
-                </div>
-
-                {{-- Ticket Body --}}
-                <div class="p-8 relative overflow-hidden min-h-[400px]">
-                    {{-- Watermark --}}
-                    <div class="absolute -right-20 -bottom-20 opacity-5 pointer-events-none print:opacity-10">
-                        <svg class="w-96 h-96 text-fun-green" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14h2v2h-2zm0-10h2v8h-2z"/></svg>
-                    </div>
-
-                    {{-- Event Details --}}
-                    <div class="mb-8 border-b border-gray-100 pb-8 relative z-10">
-                        <div class="flex flex-col md:flex-row justify-between items-start gap-8">
-                            <div class="flex-1">
-                                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Detail Acara</h2>
-                                
-                                <div class="grid grid-cols-1 gap-4">
-                                    <div class="flex items-start group">
-                                        <div class="w-8 flex-shrink-0 text-fun-green">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <div class="space-y-6">
+                            <!-- Date & Time Row -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="group">
+                                    <div class="flex items-center text-gray-500 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-green-50 text-[#00d285] flex items-center justify-center mr-3 group-hover:bg-[#00d285] group-hover:text-white transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                         </div>
-                                        <div>
-                                            <p class="text-xs text-gray-400 font-bold uppercase">Tanggal</p>
-                                            <p class="font-bold text-gray-800 text-lg">{{ $registration->raceCategory->event->date?->format('l, d F Y') ?? 'TBA' }}</p>
-                                        </div>
+                                        <span class="text-xs font-bold uppercase tracking-wide text-gray-400">Tanggal</span>
                                     </div>
-                                    
-                                    <div class="flex items-start group">
-                                        <div class="w-8 flex-shrink-0 text-fun-teal">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs text-gray-400 font-bold uppercase">Waktu</p>
-                                            <p class="font-bold text-gray-800 text-lg">{{ $registration->raceCategory->event->date?->format('H:i') ?? 'TBA' }} WITA</p>
-                                        </div>
-                                    </div>
+                                    <p class="text-xl font-bold text-gray-900 ml-11">
+                                        {{ $registration->raceCategory->event->date?->format('l, d F Y') ?? 'TBA' }}
+                                    </p>
+                                </div>
 
-                                    <div class="flex items-start group">
-                                         <div class="w-8 flex-shrink-0 text-red-500">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                <div class="group">
+                                    <div class="flex items-center text-gray-500 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-teal-50 text-[#009aa6] flex items-center justify-center mr-3 group-hover:bg-[#009aa6] group-hover:text-white transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         </div>
-                                        <div>
-                                            <p class="text-xs text-gray-400 font-bold uppercase">Lokasi</p>
-                                            <p class="font-bold text-gray-800 text-lg">{{ $registration->raceCategory->event->location ?? 'Universitas Ichsan Gorontalo Utara' }}</p>
-                                        </div>
+                                        <span class="text-xs font-bold uppercase tracking-wide text-gray-400">Waktu Start</span>
                                     </div>
+                                    <p class="text-xl font-bold text-gray-900 ml-11">
+                                        {{ $registration->raceCategory->event->date?->format('H:i') ?? 'TBA' }} WITA
+                                    </p>
                                 </div>
                             </div>
 
-                            <div class="w-full md:w-auto text-left md:text-center p-6 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 print:bg-transparent print:border-none print:p-0">
-                                <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">ID Registrasi</p>
-                                <p class="text-2xl font-mono font-black text-fun-teal mb-4 tracking-tighter">
-                                    {{ $registration->registration_number }}
+                            <!-- Location -->
+                            <div class="group">
+                                <div class="flex items-center text-gray-500 mb-2">
+                                    <div class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center mr-3 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </div>
+                                    <span class="text-xs font-bold uppercase tracking-wide text-gray-400">Lokasi</span>
+                                </div>
+                                <p class="text-xl font-bold text-gray-900 leading-snug ml-11">
+                                    {{ $registration->raceCategory->event->location ?? 'Universitas Ichsan Gorontalo Utara' }}
                                 </p>
-                                <div class="flex justify-center bg-white p-2 rounded-lg shadow-sm w-fit mx-auto print:hidden">
-                                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->color(0, 154, 166)->generate($registration->registration_number) !!}
-                                </div>
-                                <div class="hidden print:block flex justify-center mt-2">
-                                     {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(100)->generate($registration->registration_number) !!}
-                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Participant List --}}
-                    <div>
-                        <h3 class="text-sm text-gray-600 uppercase tracking-widest font-bold mb-6 border-l-4 border-fun-green pl-3">Daftar Peserta</h3>
-                        <div class="bg-gray-50 rounded-2xl p-2 print:bg-transparent print:p-0">
-                            @foreach($registration->participants as $index => $participant)
-                                <div class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm mb-2 border border-gray-100 last:mb-0 print:border-b print:shadow-none print:rounded-none">
-                                    <div class="flex items-center gap-4">
-                                        <div class="h-10 w-10 rounded-full bg-fun-green text-white flex items-center justify-center font-bold text-sm shadow-inner print:bg-black print:text-white">
-                                            {{ $index + 1 }}
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-900 text-lg">{{ $participant->name }}</p>
-                                            <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Size: <span class="text-fun-teal">{{ $participant->jersey_size }}</span></p>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-lg font-mono font-bold border border-gray-200 print:border-black">
-                                            BIB: {{ $participant->bib_number ?? 'PENDING' }}
-                                        </span>
-                                    </div>
-                                </div>
-                            @endforeach
+                    <!-- QR Code Section -->
+                    <div class="bg-[#f0fdf9] border-2 border-dashed border-[#00d285] rounded-2xl p-6 flex flex-col items-center justify-center text-center print:border-gray-300 print:bg-white">
+                        <span class="text-xs font-black text-[#009aa6] uppercase tracking-widest mb-3">ID Registrasi</span>
+                        <span class="font-mono text-2xl font-black text-gray-900 mb-6 tracking-tighter border-b-2 border-[#00d285] border-dashed pb-2 w-full">{{ $registration->registration_number }}</span>
+
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-4 print:shadow-none print:border-none">
+                            {!! QrCode::size(150)->color(0, 50, 60)->generate($registration->registration_number) !!}
                         </div>
-                    </div>
-                    
-                    {{-- Footer Note --}}
-                    <div class="mt-8 text-center text-xs text-gray-400 print:mt-12">
-                        <p>Simpan E-Ticket ini. Tunjukkan QR Code saat pengambilan Race Pack.</p>
-                        <p class="mt-1">&copy; 2024 UIGU Fun Run.</p>
+                        <span class="text-[10px] text-[#009aa6] font-bold uppercase tracking-wide print:text-black">Scan saat Registrasi Ulang</span>
                     </div>
                 </div>
+
+                <!-- Divider -->
+                <div class="relative my-10 border-t-2 border-dashed border-gray-200 print:hidden">
+                    <div class="absolute -left-12 -top-4 w-8 h-8 bg-gray-50 rounded-full"></div>
+                    <div class="absolute -right-12 -top-4 w-8 h-8 bg-gray-50 rounded-full"></div>
+                </div>
+
+                <!-- Participants List -->
+                <div>
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Peserta Terdaftar</h3>
+                    <div class="border border-gray-100 rounded-2xl overflow-hidden divide-y divide-gray-100 shadow-sm print:border-gray-300">
+                        @foreach($registration->participants as $index => $participant)
+                            <div class="p-5 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center space-x-5">
+                                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#00d285] to-[#009aa6] text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md print:bg-none print:bg-gray-200 print:text-black">
+                                        {{ $index + 1 }}
+                                    </div>
+                                    <div>
+                                        <p class="text-base font-bold text-gray-900">{{ $participant->name }}</p>
+                                        <p class="text-xs text-gray-500 font-medium mt-0.5 uppercase tracking-wide">Jersey: <span class="font-bold text-gray-800">{{ $participant->jersey_size }}</span></p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="block text-[10px] uppercase text-gray-400 tracking-wider font-bold mb-1">Nomor BIB</span>
+                                    @if($participant->bib_number)
+                                        <span class="inline-block bg-[#1a1a1a] text-[#f8c400] text-xl font-mono font-black px-3 py-1 rounded-lg shadow-sm print:border print:border-black print:text-black print:bg-white">
+                                            {{ $participant->bib_number }}
+                                        </span>
+                                    @else
+                                        <span class="inline-block bg-gray-100 text-gray-400 text-xs font-bold px-3 py-1.5 rounded-lg italic border border-gray-200">
+                                            Belum Rilis
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Message -->
+            <div class="bg-gray-50 p-6 text-center border-t border-gray-200 print:hidden">
+                <p class="text-xs text-gray-500">Harap membawa E-Ticket ini (digital/cetak) dan identitas diri saat pengambilan Race Pack.</p>
             </div>
         </div>
+
+        <div class="mt-8 text-center text-gray-400 text-xs print:hidden">
+            &copy; {{ date('Y') }} Universitas Ichsan Gorontalo Utara. All rights reserved.
+        </div>
     </div>
+</div>
 @endsection
