@@ -3,11 +3,11 @@
 @php
     use App\Enums\PaymentStatus;
     use Carbon\Carbon;
-    
+
     // Status Logic Helper
-    $statusEnum = $registration->payment ? $registration->payment->status : PaymentStatus::PendingValitadion;
-    $isRejected = $statusEnum === PaymentStatus::PaymentRejected;
-    
+    $statusEnum = $registration->payment ? $registration->payment->status : PaymentStatus::PendingPayment;
+    $isRejected = $registration->payment && !empty($registration->payment->rejection_reason);
+
     $statusTitle = 'Menunggu Pembayaran';
     $statusDesc = 'Silakan selesaikan pembayaran Anda.';
     $statusColor = 'bg-yellow-100 text-yellow-700';
@@ -36,7 +36,7 @@
 @section('content')
     <div class="min-h-screen bg-gray-50/50 py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             {{-- Status Card Header --}}
             <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-gray-100">
                 <div class="bg-gradient-to-r from-fun-green to-fun-teal p-8 text-center relative overflow-hidden">
