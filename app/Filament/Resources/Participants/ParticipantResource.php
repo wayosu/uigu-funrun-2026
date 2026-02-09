@@ -4,14 +4,13 @@ namespace App\Filament\Resources\Participants;
 
 use App\Enums\Gender;
 use App\Enums\PaymentStatus;
-use App\Filament\Exports\ParticipantExporter;
+use App\Exports\ParticipantsExport;
 use App\Filament\Resources\Participants\Pages\ManageParticipants;
 use App\Models\JerseySize;
 use App\Models\Participant;
 use BackedEnum;
-use Filament\Actions\ExportAction;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -26,6 +25,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ParticipantResource extends Resource
 {
@@ -209,27 +210,32 @@ class ParticipantResource extends Resource
                 ViewAction::make(),
             ])
             ->bulkActions([
-                ExportBulkAction::make()
-                    ->exporter(ParticipantExporter::class)
+                BulkAction::make('export')
                     ->label('Export to Excel')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
-                    ->formats([ExportFormat::Xlsx])
-                    ->fileName(fn (): string => 'participants_'.now()->format('Y-m-d_His'))
-                    ->chunkSize(500),
+                    ->action(function (Collection $records) {
+                        $filename = 'participants_selected_'.now()->format('Y-m-d_His').'.xlsx';
+                        $query = Participant::query()->whereIn('id', $records->pluck('id'));
+
+                        return Excel::download(new ParticipantsExport($query), $filename);
+                    })
+                    ->deselectRecordsAfterCompletion(),
             ])
             ->toolbarActions([
                 //
             ])
             ->headerActions([
-                ExportAction::make()
-                    ->exporter(ParticipantExporter::class)
+                Action::make('export')
                     ->label('Export to Excel')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('primary')
-                    ->formats([ExportFormat::Xlsx])
-                    ->fileName(fn (): string => 'all_participants_'.now()->format('Y-m-d_His'))
-                    ->chunkSize(500),
+                    ->action(function ($livewire) {
+                        $filename = 'participants_all_'.now()->format('Y-m-d_His').'.xlsx';
+                        $query = $livewire->getFilteredTableQuery();
+
+                        return Excel::download(new ParticipantsExport($query), $filename);
+                    }),
             ]);
     }
 
