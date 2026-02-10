@@ -23,7 +23,7 @@ class WelcomeController extends Controller
                 // Check dates
                 if ($category->registration_open_at && now()->isBefore($category->registration_open_at)) {
                     $state = 'coming_soon';
-                    $label = 'Dibuka ' . $category->registration_open_at->locale('id')->isoFormat('D MMM HH:mm');
+                    $label = 'Dibuka '.$category->registration_open_at->locale('id')->isoFormat('D MMM HH:mm');
                     $disabled = true;
                 } elseif ($category->registration_close_at && now()->isAfter($category->registration_close_at)) {
                     $state = 'closed';
@@ -40,7 +40,7 @@ class WelcomeController extends Controller
                 $categoryStates[$category->id] = [
                     'state' => $state,
                     'label' => $label,
-                    'disabled' => $disabled
+                    'disabled' => $disabled,
                 ];
             }
         }

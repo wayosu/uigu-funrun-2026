@@ -74,6 +74,7 @@ class CreateRegistrationAction
                 $registration->participants()->create([
                     'is_pic' => $participantData['is_pic'] ?? ($index === 0),
                     'name' => $participantData['full_name'],
+                    'bib_name' => $participantData['bib_name'] ?? null,
                     'email' => $participantData['email'],
                     'phone' => $participantData['whatsapp'],
                     'gender' => $participantData['gender'],

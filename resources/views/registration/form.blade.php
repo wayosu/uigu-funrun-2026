@@ -154,6 +154,18 @@
                                 <span class="text-red-500 text-xs mt-1 block pl-1">{{ $message }}</span>
                             @enderror
                         </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Nama BIB</label>
+                            <input type="text" name="pic[bib_name]" value="{{ old('pic.bib_name') }}" required
+                                class="w-full rounded-xl border-gray-200 shadow-sm focus:border-fun-green focus:ring-fun-green text-gray-800 font-medium py-3 px-4 transition duration-200 bg-gray-50 focus:bg-white placeholder-gray-400" placeholder="Nama yang akan tertera di BIB">
+                            <p class="text-gray-400 text-xs mt-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                Nama yang akan dicetak pada nomor BIB
+                            </p>
+                            @error('pic.bib_name')
+                                <span class="text-red-500 text-xs mt-1 block pl-1">{{ $message }}</span>
+                            @enderror
+                        </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Alamat Email</label>
                             <input type="email" name="pic[email]" value="{{ old('pic.email') }}" required
@@ -296,6 +308,16 @@
                                         x-bind:disabled="membersCount() <= {{ $i }}"
                                         class="w-full rounded-xl border-gray-200 shadow-sm focus:border-fun-teal focus:ring-fun-teal text-gray-800 py-2.5 px-4 bg-gray-50 focus:bg-white" placeholder="Sesuai Identitas">
                                     @error("members.$i.full_name")
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Nama BIB</label>
+                                    <input type="text" name="members[{{ $i }}][bib_name]"
+                                        value="{{ old("members.$i.bib_name") }}" x-bind:required="membersCount() > {{ $i }}"
+                                        x-bind:disabled="membersCount() <= {{ $i }}"
+                                        class="w-full rounded-xl border-gray-200 shadow-sm focus:border-fun-teal focus:ring-fun-teal text-gray-800 py-2.5 px-4 bg-gray-50 focus:bg-white" placeholder="Nama yang akan tertera di BIB">
+                                    @error("members.$i.bib_name")
                                         <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
                                     @enderror
                                 </div>

@@ -39,6 +39,8 @@ class ParticipantExporter extends Exporter
                 ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
             ExportColumn::make('name')
                 ->label('Full Name'),
+            ExportColumn::make('bib_name')
+                ->label('BIB Name'),
             ExportColumn::make('email')
                 ->label('Email Address'),
             ExportColumn::make('phone')

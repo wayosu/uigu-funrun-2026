@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\PaymentStatus;
 use App\Enums\RegistrationType;
 use App\Models\RaceCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;

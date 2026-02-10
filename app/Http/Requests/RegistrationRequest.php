@@ -43,6 +43,7 @@ class RegistrationRequest extends FormRequest
 
             // PIC data (first participant)
             'pic.full_name' => 'required|string|max:255',
+            'pic.bib_name' => 'required|string|max:255',
             'pic.email' => 'required|email:rfc,dns|max:255',
             'pic.whatsapp' => ['required', 'regex:/^(\+?62|0)[0-9]{9,13}$/'],
             'pic.gender' => ['required', Rule::enum(Gender::class)],
@@ -74,6 +75,7 @@ class RegistrationRequest extends FormRequest
         return [
             'members' => ['required', 'array', "size:{$count}"],
             'members.*.full_name' => 'required|string|max:255',
+            'members.*.bib_name' => 'required|string|max:255',
             'members.*.email' => [
                 'required',
                 'email:rfc,dns',

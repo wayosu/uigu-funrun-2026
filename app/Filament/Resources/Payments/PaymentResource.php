@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Payments;
 
-use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Filament\Resources\Payments\Pages\ManagePayments;
 use App\Models\Payment;
@@ -10,8 +9,6 @@ use App\Services\PaymentService;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;

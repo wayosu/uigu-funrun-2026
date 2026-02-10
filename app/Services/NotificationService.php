@@ -308,27 +308,27 @@ class NotificationService
                     "Silakan lakukan pembayaran sebelum {expiry}.\n\n".
                     "Link pembayaran: {payment_url}\n".
                     "Status pembayaran: {status_url}\n\n".
-                    "Terima kasih!",
+                    'Terima kasih!',
                 'payment_uploaded' => "BUKTI PEMBAYARAN DITERIMA 📸\n\n".
                     "Halo {pic_name},\n\n".
                     "Nomor Registrasi: {registration_number}\n".
                     "Status saat ini: {payment_status}\n\n".
                     "Cek status: {status_url}\n\n".
-                    "Terima kasih!",
+                    'Terima kasih!',
                 'payment_verified' => "PEMBAYARAN TERVERIFIKASI ✅\n\n".
                     "Halo {pic_name},\n\n".
                     "Nomor Registrasi: {registration_number}\n".
                     "Status saat ini: {payment_status}\n\n".
                     "E-Ticket: {ticket_url}\n".
                     "Cek status: {status_url}\n\n".
-                    "Sampai jumpa di hari H!",
+                    'Sampai jumpa di hari H!',
                 'payment_rejected' => "PEMBAYARAN DITOLAK ❌\n\n".
                     "Halo {pic_name},\n\n".
                     "Nomor Registrasi: {registration_number}\n".
                     "Alasan: {reason}\n\n".
                     "Upload ulang bukti pembayaran: {payment_url}\n".
                     "Cek status: {status_url}\n\n".
-                    "Terima kasih.",
+                    'Terima kasih.',
                 default => 'Notification',
             },
             'email' => match ($type) {
@@ -343,13 +343,13 @@ class NotificationService
                     "Expiry: {expiry}\n\n".
                     "Payment link: {payment_url}\n".
                     "Payment status: {status_url}\n\n".
-                    "Thank you.",
+                    'Thank you.',
                 'payment_uploaded' => "Hello {pic_name},\n\n".
                     "We have received your payment proof.\n\n".
                     "Registration Number: {registration_number}\n".
                     "Status: {payment_status}\n\n".
                     "Payment status link: {status_url}\n\n".
-                    "Thank you.",
+                    'Thank you.',
                 'payment_verified' => "Hello {pic_name},\n\n".
                     "Your payment has been verified.\n\n".
                     "Registration Number: {registration_number}\n".
@@ -357,14 +357,14 @@ class NotificationService
                     "E-Ticket link: {ticket_url}\n".
                     "Payment status link: {status_url}\n\n".
                     "Your e-ticket PDF is attached to this email.\n\n".
-                    "See you on race day!",
+                    'See you on race day!',
                 'payment_rejected' => "Hello {pic_name},\n\n".
                     "We could not verify your payment.\n\n".
                     "Registration Number: {registration_number}\n".
                     "Reason: {reason}\n\n".
                     "Re-upload payment proof: {payment_url}\n".
                     "Payment status link: {status_url}\n\n".
-                    "Thank you.",
+                    'Thank you.',
                 default => 'Notification',
             },
             default => 'Notification',

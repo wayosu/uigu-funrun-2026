@@ -17,6 +17,7 @@ class Participant extends Model
         'gender' => Gender::class,
         'birth_date' => 'date',
         'is_pic' => 'boolean',
+        'last_exported_at' => 'datetime',
     ];
 
     // Relationships
@@ -30,6 +31,10 @@ class Participant extends Model
         return $this->hasMany(Checkin::class);
     }
 
+    public function lastExportedBy()
+    {
+        return $this->belongsTo(User::class, 'last_exported_by');
+    }
 
     // Scopes
     public function scopePic(Builder $query): void
@@ -57,6 +62,29 @@ class Participant extends Model
         $query->whereDoesntHave('checkins');
     }
 
+    public function scopeExported(Builder $query): void
+    {
+        $query->whereNotNull('last_exported_at');
+    }
+
+    public function scopeNotExported(Builder $query): void
+    {
+        $query->whereNull('last_exported_at');
+    }
+
+    public function scopeExportedAfter(Builder $query, $date): void
+    {
+        $query->where('last_exported_at', '>', $date);
+    }
+
+    public function scopeNewOrUpdatedSinceLastExport(Builder $query): void
+    {
+        $query->where(function ($q) {
+            $q->whereNull('last_exported_at')
+                ->orWhereColumn('updated_at', '>', 'last_exported_at');
+        });
+    }
+
     // Helper Methods
     public function isCheckedIn(): bool
     {
@@ -79,5 +107,19 @@ class Participant extends Model
     public function getFullContactInfo(): string
     {
         return "{$this->name} | {$this->email} | {$this->phone}";
+    }
+
+    public function markAsExported(?int $userId = null): void
+    {
+        $this->update([
+            'last_exported_at' => now(),
+            'last_exported_by' => $userId ?? auth()->id(),
+            'export_count' => $this->export_count + 1,
+        ]);
+    }
+
+    public function hasBeenExported(): bool
+    {
+        return ! is_null($this->last_exported_at);
     }
 }

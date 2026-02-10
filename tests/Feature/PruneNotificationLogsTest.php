@@ -41,7 +41,7 @@ test('it prunes notification logs older than retention window', function () {
         'updated_at' => now()->subDays(5),
     ]);
 
-    (new PruneNotificationLogsJob())->handle();
+    (new PruneNotificationLogsJob)->handle();
 
     $this->assertDatabaseMissing('notification_logs', ['id' => $oldLog->id]);
     $this->assertDatabaseHas('notification_logs', ['id' => $recentLog->id]);

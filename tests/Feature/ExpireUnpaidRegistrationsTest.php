@@ -41,7 +41,7 @@ test('it deletes unpaid registrations that expired after 24 hours', function () 
         'expired_at' => now()->addHours(2),
     ]);
 
-    (new ExpireUnpaidRegistrationsJob())->handle();
+    (new ExpireUnpaidRegistrationsJob)->handle();
 
     $this->assertDatabaseMissing('registrations', ['id' => $expiredUnpaid->id]);
     $this->assertDatabaseHas('registrations', ['id' => $expiredWithPayment->id]);

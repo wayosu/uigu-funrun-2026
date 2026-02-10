@@ -331,5 +331,4 @@ class NotificationSettings extends Page implements HasForms
             ->success()
             ->send();
     }
-
 }

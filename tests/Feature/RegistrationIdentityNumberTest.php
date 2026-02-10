@@ -1,10 +1,10 @@
 <?php
 
 use App\Models\Event;
+use App\Models\JerseySize;
 use App\Models\Participant;
 use App\Models\RaceCategory;
 use App\Models\Registration;
-use App\Models\JerseySize;
 use Database\Seeders\JerseySizeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

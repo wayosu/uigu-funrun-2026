@@ -11,7 +11,6 @@ use App\Models\Registration;
 use BackedEnum;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Collection;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -20,6 +19,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class RegistrationResource extends Resource
 {
