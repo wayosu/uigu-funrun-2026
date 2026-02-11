@@ -18,7 +18,12 @@
 
     <!-- Styles & Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Alpine.js - loaded after styles to prevent FOUC -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Prevent Quirks Mode warning -->
+    <style>html{visibility:visible;opacity:1;}</style>
 </head>
 
 <body class="font-sans antialiased text-gray-900 bg-gray-50 flex flex-col min-h-screen">
