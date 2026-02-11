@@ -16,25 +16,25 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Step 1: Pull latest code (jika menggunakan git)
-echo -e "${YELLOW}[1/6] Pulling latest code...${NC}"
-if [ -d ".git" ]; then
-    git pull origin main
-    echo -e "${GREEN}✓ Code updated${NC}"
-else
-    echo -e "${YELLOW}⚠ Git not found, skipping...${NC}"
-fi
-echo ""
+# # Step 1: Pull latest code (jika menggunakan git)
+# echo -e "${YELLOW}[1/6] Pulling latest code...${NC}"
+# if [ -d ".git" ]; then
+#     git pull origin main
+#     echo -e "${GREEN}✓ Code updated${NC}"
+# else
+#     echo -e "${YELLOW}⚠ Git not found, skipping...${NC}"
+# fi
+# echo ""
 
-# Step 2: Install/Update dependencies
-echo -e "${YELLOW}[2/6] Updating dependencies...${NC}"
-if command -v composer &> /dev/null; then
-    composer install --no-dev --optimize-autoloader --no-interaction
-    echo -e "${GREEN}✓ Dependencies updated${NC}"
-else
-    echo -e "${RED}✗ Composer not found. Install composer first.${NC}"
-fi
-echo ""
+# # Step 2: Install/Update dependencies
+# echo -e "${YELLOW}[2/6] Updating dependencies...${NC}"
+# if command -v composer &> /dev/null; then
+#     composer install --no-dev --optimize-autoloader --no-interaction
+#     echo -e "${GREEN}✓ Dependencies updated${NC}"
+# else
+#     echo -e "${RED}✗ Composer not found. Install composer first.${NC}"
+# fi
+# echo ""
 
 # Step 3: Clear all caches
 echo -e "${YELLOW}[3/6] Clearing all caches...${NC}"
