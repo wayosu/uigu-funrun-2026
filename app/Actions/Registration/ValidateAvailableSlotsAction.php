@@ -3,6 +3,7 @@
 namespace App\Actions\Registration;
 
 use App\Models\RaceCategory;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ValidateAvailableSlotsAction
@@ -44,12 +45,27 @@ class ValidateAvailableSlotsAction
      */
     public function getAvailableSlots(RaceCategory $category): int
     {
-        $currentParticipants = DB::table('participants')
-            ->join('registrations', 'participants.registration_id', '=', 'registrations.id')
-            ->where('registrations.race_category_id', $category->id)
-            ->whereIn('registrations.status', ['pending_payment', 'payment_uploaded', 'payment_verified'])
-            ->count();
+        // Cache available slots for 5 minutes to reduce database load
+        return Cache::remember(
+            "available_slots_{$category->id}",
+            now()->addMinutes(5),
+            function () use ($category) {
+                $currentParticipants = DB::table('participants')
+                    ->join('registrations', 'participants.registration_id', '=', 'registrations.id')
+                    ->where('registrations.race_category_id', $category->id)
+                    ->whereIn('registrations.status', ['pending_payment', 'payment_uploaded', 'payment_verified'])
+                    ->count();
 
-        return max(0, $category->quota - $currentParticipants);
+                return max(0, $category->quota - $currentParticipants);
+            }
+        );
+    }
+
+    /**
+     * Clear cached available slots for a category
+     */
+    public function clearCache(RaceCategory $category): void
+    {
+        Cache::forget("available_slots_{$category->id}");
     }
 }
