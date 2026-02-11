@@ -2,11 +2,10 @@
 
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
-
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RegistrationController;
+
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 Route::get('/register/{category}', [RegistrationController::class, 'show'])->name('registration.form');
 Route::post('/register/{category}', [RegistrationController::class, 'store'])
