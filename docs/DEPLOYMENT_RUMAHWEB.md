@@ -215,19 +215,150 @@ Pada shared hosting, kita tidak bisa menggunakan Supervisor. Solusinya:
 
 ---
 
+## Fix Error 503/500 di Rumahweb (PENTING!)
+
+### Gejala
+- Homepage menampilkan error 503 "Service Unavailable" atau 500 "Internal Server Error"
+- Halaman lain bisa diakses dengan normal
+
+### Penyebab Umum
+1. **Cache Laravel belum di-clear** setelah update code
+2. **PHP OPcache masih menyimpan code lama**
+3. **Permission file/folder tidak tepat**
+4. **PHP memory limit terlalu kecil**
+5. **Vite manifest tidak di-build dengan benar**
+
+### Solusi Quick Fix
+
+#### Via SSH (Recommended)
+
+```bash
+# 1. Masuk ke folder aplikasi
+cd ~/uigu-app
+
+# 2. Jalankan script deployment otomatis
+./deploy-shared.sh
+```
+
+Script ini akan otomatis:
+- Pull code terbaru (jika ada git)
+- Update composer dependencies
+- Clear ALL cache (Laravel & PHP)
+- Run migration
+- Re-optimize untuk production
+- Fix permissions
+
+#### Manual Steps (Jika Tidak Ada SSH)
+
+**1. Clear Cache via File Manager:**
+
+Di cPanel File Manager, masuk ke folder `uigu-app`:
+
+```bash
+# Hapus folder cache
+bootstrap/cache/*.php (hapus semua file .php)
+storage/framework/cache/* (hapus semua)
+storage/framework/views/* (hapus semua)
+```
+
+**2. Clear Cache via Route (Temporary):**
+
+Tambahkan route sementara di `routes/web.php`:
+
+```php
+Route::get('/clear-all-cache', function () {
+    Artisan::call('optimize:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('event:clear');
+    
+    // Re-cache untuk production
+    Artisan::call('config:cache');
+    Artisan::call('route:cache');
+    Artisan::call('view:cache');
+    Artisan::call('event:cache');
+    
+    return 'Cache cleared and re-optimized!';
+});
+```
+
+Akses: `https://domain-anda.com/clear-all-cache`
+
+**SEGERA HAPUS** route ini setelah selesai!
+
+**3. Restart PHP-FPM (Via Support):**
+
+Di shared hosting Rumahweb, Anda tidak bisa restart PHP sendiri. Solusi:
+
+- **Option A:** Hubungi Live Chat Rumahweb, minta restart PHP-FPM untuk domain Anda
+- **Option B:** Ubah versi PHP di cPanel (Select PHP Version) ke versi lain, tunggu 30 detik, lalu kembalikan ke versi semula. Ini akan trigger restart PHP.
+
+**4. Fix Permissions:**
+
+Di File Manager cPanel:
+
+```
+Klik kanan folder: storage → Change Permissions → 755
+Klik kanan folder: bootstrap/cache → Change Permissions → 755
+```
+
+**5. Rebuild Assets (Jika Error Vite):**
+
+Di komputer local:
+
+```bash
+npm run build
+```
+
+Upload ulang folder `public/build/` ke server.
+
+### Verification Checklist
+
+Setelah fix, pastikan:
+
+✅ File `.env` ada dan konfigurasi database benar
+✅ Folder `storage` dan `bootstrap/cache` permission 755
+✅ File `public/build/manifest.json` ada
+✅ Symlink `public_html` → `uigu-app/public` benar
+✅ Cache sudah di-clear semua
+✅ Homepage return HTTP 200 (test via browser Incognito)
+
+---
+
 ## Masalah Umum (Troubleshooting)
 
 1.  **Error 500 (Server Error):**
     - Cek folder `storage/logs/laravel.log`.
     - Pastikan permission folder `storage` dan `bootstrap/cache` adalah `775` atau `755`.
+    - Pastikan `.env` file ada dan konfigurasi database benar.
+    - Clear cache Laravel (lihat section Fix Error 503/500 di atas).
 
-2.  **Gambar tidak muncul (404):**
+2.  **Error 503 (Service Unavailable):**
+    - PHP-FPM overload atau crash. Hubungi support Rumahweb untuk restart.
+    - Memory limit terlalu kecil. Request naikkan `memory_limit` di PHP settings.
+    - Query database terlalu berat. Pastikan sudah deploy code terbaru yang optimized.
+
+3.  **Gambar tidak muncul (404):**
     - Pastikan symlink sudah benar (Tahap 4 & 6).
     - Cek file di `public_html/storage/`.
+    - Jalankan: `php artisan storage:link`
 
-3.  **Tailwind CSS berantakan / Style hilang:**
+4.  **Tailwind CSS berantakan / Style hilang:**
     - Pastikan sudah menjalankan `npm run build` di local sebelum upload.
     - Pastikan folder `build` di dalam `public` ikut terupload.
+    - Clear browser cache (Ctrl + Shift + R).
 
-4.  **Vite Manifest not found:**
-    - Sama seperti no 3, folder `public/build/manifest.json` wajib ada.
+5.  **Vite Manifest not found:**
+    - Sama seperti no 4, folder `public/build/manifest.json` wajib ada.
+    - Jalankan `npm run build` di local, upload ulang folder `public/build/`.
+
+6.  **Class not found / Method not found:**
+    - Jalankan: `composer dump-autoload`
+    - Clear cache: `php artisan optimize:clear`
+
+7.  **Database Connection Error:**
+    - Cek `.env`: `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+    - Di Rumahweb, database name dan username biasanya prefix dengan username cPanel
+    - Contoh: `cpanelusername_dbname`, `cpanelusername_dbuser`
