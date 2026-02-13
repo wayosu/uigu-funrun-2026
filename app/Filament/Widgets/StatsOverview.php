@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\PaymentStatus;
 use App\Models\Checkin;
 use App\Models\Registration;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -11,13 +12,13 @@ class StatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-        $totalIncome = Registration::where('status', 'paid')->sum('total_amount');
+        $totalIncome = Registration::where('status', PaymentStatus::PaymentVerified)->sum('total_amount');
 
-        $paidCount = Registration::where('status', 'paid')->count();
-        $pendingCount = Registration::whereIn('status', ['pending_payment', 'waiting_verification'])->count();
+        $paidCount = Registration::where('status', PaymentStatus::PaymentVerified)->count();
+        $pendingCount = Registration::whereIn('status', [PaymentStatus::PendingPayment, PaymentStatus::PaymentUploaded])->count();
 
         $totalPaidParticipants = \App\Models\Participant::whereHas('registration', function ($query) {
-            $query->where('status', 'paid');
+            $query->where('status', PaymentStatus::PaymentVerified);
         })->count();
 
         $checkedInParticipants = Checkin::count();

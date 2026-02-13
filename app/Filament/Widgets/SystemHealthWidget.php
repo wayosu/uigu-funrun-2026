@@ -2,6 +2,8 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\PaymentStatus;
+use App\Models\Registration;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -23,6 +25,7 @@ class SystemHealthWidget extends StatsOverviewWidget
             $this->getRedisStatus(),
             $this->getDatabaseStatus(),
             $this->getFailedJobsCount(),
+            $this->getMissingNotifications(),
         ];
     }
 
@@ -94,6 +97,34 @@ class SystemHealthWidget extends StatsOverviewWidget
                 ->color($color);
         } catch (\Exception $e) {
             return Stat::make('Failed Jobs', 'Error')
+                ->description('Unable to fetch data')
+                ->descriptionIcon(Heroicon::OutlinedExclamationTriangle)
+                ->color('danger');
+        }
+    }
+
+    protected function getMissingNotifications(): Stat
+    {
+        try {
+            // Count verified payments without sent payment_verified notifications
+            $missingCount = Registration::where('status', PaymentStatus::PaymentVerified)
+                ->whereDoesntHave('notificationLogs', function ($query) {
+                    $query->where('type', 'payment_verified')
+                        ->where('status', 'sent');
+                })
+                ->count();
+
+            $description = $missingCount > 0 ? 'Check Notification Logs' : 'All sent';
+            $color = $missingCount > 0 ? 'danger' : 'success';
+            $icon = $missingCount > 0 ? Heroicon::OutlinedExclamationCircle : Heroicon::OutlinedCheckBadge;
+
+            return Stat::make('Missing Notifications', $missingCount)
+                ->description($description)
+                ->descriptionIcon($icon)
+                ->color($color)
+                ->url($missingCount > 0 ? route('filament.admin.resources.notification-logs.index') : null);
+        } catch (\Exception $e) {
+            return Stat::make('Missing Notifications', 'Error')
                 ->description('Unable to fetch data')
                 ->descriptionIcon(Heroicon::OutlinedExclamationTriangle)
                 ->color('danger');
