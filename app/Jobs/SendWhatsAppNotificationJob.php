@@ -15,6 +15,8 @@ class SendWhatsAppNotificationJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
+    public string $queue = 'notifications';
+
     /**
      * The number of times the job may be attempted.
      */

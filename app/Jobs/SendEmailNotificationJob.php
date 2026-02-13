@@ -15,6 +15,8 @@ class SendEmailNotificationJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
+    public string $queue = 'emails';
+
     /**
      * The number of times the job may be attempted.
      */
