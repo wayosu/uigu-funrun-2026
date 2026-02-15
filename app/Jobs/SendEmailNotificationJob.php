@@ -15,8 +15,6 @@ class SendEmailNotificationJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
-    public string $queue = 'emails';
-
     /**
      * The number of times the job may be attempted.
      */
@@ -38,7 +36,9 @@ class SendEmailNotificationJob implements ShouldQueue
         public ?Participant $participant = null,
         public string $type = 'general',
         public bool $attachTicketPdf = false
-    ) {}
+    ) {
+        $this->onQueue('emails');
+    }
 
     /**
      * Execute the job.
