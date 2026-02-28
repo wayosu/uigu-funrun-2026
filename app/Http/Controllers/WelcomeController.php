@@ -36,6 +36,14 @@ class WelcomeController extends Controller
                     'disabled' => $disabled,
                 ];
             }
+
+            // Sort categories so closed/disabled ones appear last
+            $event->setRelation(
+                'raceCategories',
+                $event->raceCategories->sortBy(
+                    fn ($category) => $categoryStates[$category->id]['disabled'] ? 1 : 0
+                )->values()
+            );
         }
 
         return view('welcome', compact('event', 'categoryStates'));
