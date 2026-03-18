@@ -94,7 +94,7 @@ class Registration extends Model
     public function isExpired(): bool
     {
         return $this->status === PaymentStatus::Expired
-            || ($this->status === PaymentStatus::PendingPayment && $this->expired_at->isPast());
+            || ($this->status === PaymentStatus::PendingPayment && $this->expired_at?->isPast());
     }
 
     public function isPaid(): bool

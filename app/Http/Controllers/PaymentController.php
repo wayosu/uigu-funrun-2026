@@ -27,11 +27,6 @@ class PaymentController extends Controller
             return redirect()->route('payment.status', $registration->registration_number);
         }
 
-        // Check if expired
-        if ($registration->isExpired()) {
-            return view('payment.expired', compact('registration'));
-        }
-
         $paymentSettings = $this->paymentService->getPaymentSettings();
 
         return view('payment.show', compact('registration', 'paymentSettings'));
