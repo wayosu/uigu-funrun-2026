@@ -63,7 +63,7 @@
                                     </p>
                                 </div>
 
-                                <div class="group">
+                                {{-- <div class="group">
                                     <div class="flex items-center text-gray-500 mb-2">
                                         <div class="w-8 h-8 rounded-lg bg-teal-50 text-[#009aa6] flex items-center justify-center mr-3 group-hover:bg-[#009aa6] group-hover:text-white transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -73,7 +73,7 @@
                                     <p class="text-xl font-bold text-gray-900 ml-11">
                                         {{ $registration->raceCategory->event->date?->format('H:i') ?? 'TBA' }} WITA
                                     </p>
-                                </div>
+                                </div> --}}
                             </div>
 
                             <!-- Location -->
