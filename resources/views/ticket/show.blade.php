@@ -50,7 +50,7 @@
 
                         <div class="space-y-6">
                             <!-- Date & Time Row -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-1 gap-6">
                                 <div class="group">
                                     <div class="flex items-center text-gray-500 mb-2">
                                         <div class="w-8 h-8 rounded-lg bg-green-50 text-[#00d285] flex items-center justify-center mr-3 group-hover:bg-[#00d285] group-hover:text-white transition-colors">
