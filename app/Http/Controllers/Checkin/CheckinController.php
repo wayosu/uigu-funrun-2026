@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Checkin;
 
+use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -65,7 +66,7 @@ class CheckinController extends Controller
         $registrationNumber = $request->qr_content;
 
         $registration = \App\Models\Registration::where('registration_number', $registrationNumber)
-            ->with(['participants', 'raceCategory', 'payment'])
+            ->with(['participants', 'raceCategory', 'payments'])
             ->first();
 
         if (! $registration) {
@@ -76,10 +77,10 @@ class CheckinController extends Controller
         }
 
         // Check Payment Status
-        if (! in_array($registration->status, ['paid', 'verified'])) {
+        if ($registration->status !== PaymentStatus::PaymentVerified) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Registration STATUS: '.strtoupper($registration->status).'. Payment verification required.',
+                'message' => 'Registration STATUS: '.strtoupper($registration->status->value).'. Payment verification required.',
             ], 400);
         }
 

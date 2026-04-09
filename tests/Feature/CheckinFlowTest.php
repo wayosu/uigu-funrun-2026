@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PaymentStatus;
 use App\Models\CheckinSetting;
 use App\Models\Event;
 use App\Models\RaceCategory;
@@ -70,7 +71,7 @@ class CheckinFlowTest extends TestCase
             'pic_name' => 'John Doe',
             'pic_email' => 'john@example.com',
             'pic_phone' => '08123456789',
-            'status' => 'paid', // Paid status
+            'status' => PaymentStatus::PaymentVerified,
             'total_amount' => 100000,
         ]);
 
@@ -116,7 +117,7 @@ class CheckinFlowTest extends TestCase
             'pic_name' => 'Unpaid User',
             'pic_email' => 'unpaid@example.com',
             'pic_phone' => '08123456789',
-            'status' => 'pending_payment',
+            'status' => PaymentStatus::PendingPayment,
             'total_amount' => 100000,
         ]);
 

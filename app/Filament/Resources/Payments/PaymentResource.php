@@ -103,7 +103,7 @@ class PaymentResource extends Resource
                     ->badge()
                     ->formatStateUsing(function (PaymentStatus $state): string {
                         return match ($state) {
-                            PaymentStatus::PaymentUploaded => 'Needs Verification',
+                            PaymentStatus::PaymentUploaded => 'Needs Verification (Legacy)',
                             PaymentStatus::PaymentVerified => 'Verified',
                             default => $state->label(),
                         };
@@ -136,11 +136,10 @@ class PaymentResource extends Resource
                 SelectFilter::make('verification_status')
                     ->label('Verification Status')
                     ->options([
-                        'pending' => '🕐 Needs Verification',
+                        'pending' => '🕐 Needs Verification (Legacy)',
                         'verified' => '✅ Verified',
                         'rejected' => '❌ Rejected',
                     ])
-                    ->default('pending')
                     ->query(function ($query, array $data) {
                         if (! isset($data['value']) || $data['value'] === '') {
                             return $query;
@@ -245,11 +244,12 @@ class PaymentResource extends Resource
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close'),
                 Action::make('verify')
+                    ->label('Verify Legacy')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Verify Payment')
-                    ->modalDescription('Are you sure you want to verify this payment? BIB numbers will be generated automatically.')
+                    ->modalHeading('Verify Legacy Payment')
+                    ->modalDescription('This action is only for legacy payment records that were uploaded before auto-verification was enabled.')
                     ->visible(fn (Payment $record) => $record->registration->status->canBeVerified())
                     ->action(function (Payment $record) {
                         $paymentService = app(PaymentService::class);
@@ -278,9 +278,13 @@ class PaymentResource extends Resource
                     ->icon(Heroicon::OutlinedXCircle)
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Reject Payment')
-                    ->modalDescription('Please provide a clear reason for rejecting this payment. The user will see this message.')
-                    ->visible(fn (Payment $record) => $record->registration->status->canBeVerified())
+                    ->modalHeading('Reject Payment (Emergency)')
+                    ->modalDescription('Use this for emergency rollback. The registration status will return to pending payment and the user must upload proof again.')
+                    ->visible(fn (Payment $record): bool => in_array(
+                        $record->registration->status,
+                        [PaymentStatus::PaymentUploaded, PaymentStatus::PaymentVerified],
+                        true,
+                    ))
                     ->form([
                         Select::make('rejection_reason_template')
                             ->label('Quick Reason (Optional)')
@@ -333,12 +337,12 @@ class PaymentResource extends Resource
             ])
             ->bulkActions([
                 BulkAction::make('bulk_verify')
-                    ->label('Verify Selected Payments')
+                    ->label('Verify Selected Legacy Payments')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Bulk Verify Payments')
-                    ->modalDescription(fn ($records) => 'Are you sure you want to verify '.$records->count().' payment(s)? BIB numbers will be generated automatically for all participants. This action cannot be undone.')
+                    ->modalHeading('Bulk Verify Legacy Payments')
+                    ->modalDescription(fn ($records) => 'Are you sure you want to verify '.$records->count().' legacy payment(s)? BIB numbers will be generated automatically for all participants. This action cannot be undone.')
                     ->action(function ($records) {
                         $paymentService = app(PaymentService::class);
                         $successCount = 0;

@@ -58,7 +58,7 @@ class PaymentController extends Controller
 
             return redirect()
                 ->route('payment.status', $registration->registration_number)
-                ->with('success', 'Payment proof uploaded successfully! We will verify your payment within 24 hours.');
+                ->with('success', 'Payment proof uploaded and verified successfully.');
 
         } catch (\Exception $e) {
             return back()

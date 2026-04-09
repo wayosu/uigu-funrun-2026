@@ -30,8 +30,8 @@
             $statusColor = 'bg-fun-green/10 text-fun-green';
             $statusIcon = 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'; // Check Circle
         } elseif ($statusEnum === PaymentStatus::PaymentUploaded) {
-             $statusTitle = 'Pembayaran Sedang Diverifikasi';
-             $statusDesc = 'Bukti pembayaran Anda sedang kami cek.';
+               $statusTitle = 'Pembayaran Dalam Proses Legacy';
+               $statusDesc = 'Data ini berasal dari alur lama dan sedang diproses admin.';
              $statusColor = 'bg-blue-100 text-blue-700';
              $statusIcon = 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'; // Document
         } elseif ($isRejected) {
@@ -261,7 +261,7 @@
                                                     Terverifikasi
                                                 @elseif($statusEnum === PaymentStatus::PaymentUploaded)
                                                     <svg class="w-3 h-3 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                                    Sedang Diverifikasi
+                                                    Legacy: Menunggu Proses
                                                 @elseif($isRejected)
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                     Ditolak

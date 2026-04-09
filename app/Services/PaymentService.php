@@ -66,8 +66,16 @@ class PaymentService
             'status' => PaymentStatus::PaymentUploaded,
         ]);
 
-        // Fire event
+        // Keep uploaded event for backward-compatible two-step notification flow.
         event(new \App\Events\PaymentUploaded($registration, $payment));
+
+        // Auto-verify immediately after upload based on business decision.
+        $this->processVerificationAction->execute($payment, null, true);
+
+        $registration->refresh();
+        $payment->refresh();
+
+        event(new \App\Events\PaymentVerified($registration, $payment));
 
         return $payment;
     }
@@ -83,23 +91,46 @@ class PaymentService
     ): void {
         $registration = $payment->registration;
 
-        if (! $registration->status->canBeVerified()) {
-            throw new \Exception("Cannot verify payment for registration with status: {$registration->status->label()}");
-        }
+        if ($approved) {
+            if (! $registration->status->canBeVerified()) {
+                throw new \Exception("Cannot verify payment for registration with status: {$registration->status->label()}");
+            }
 
-        if ($approved && empty($rejectionReason)) {
+            if (! empty($rejectionReason)) {
+                throw new \Exception('Invalid verification parameters');
+            }
+
             $this->processVerificationAction->execute($payment, $verifier, true);
 
             // Fire event
             event(new \App\Events\PaymentVerified($registration, $payment));
-        } elseif (! $approved && ! empty($rejectionReason)) {
+
+            return;
+        }
+
+        if (empty($rejectionReason)) {
+            throw new \Exception('Invalid verification parameters');
+        }
+
+        $allowedStatusesForRejection = [
+            PaymentStatus::PaymentUploaded,
+            PaymentStatus::PaymentVerified,
+        ];
+
+        if (! in_array($registration->status, $allowedStatusesForRejection, true)) {
+            throw new \Exception("Cannot reject payment for registration with status: {$registration->status->label()}");
+        }
+
+        if (! $approved) {
             $this->processVerificationAction->execute($payment, $verifier, false, $rejectionReason);
 
             // Fire event
             event(new \App\Events\PaymentRejected($registration, $rejectionReason));
-        } else {
-            throw new \Exception('Invalid verification parameters');
+
+            return;
         }
+
+        throw new \Exception('Invalid verification parameters');
     }
 
     /**

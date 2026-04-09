@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Models\JerseySize;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -54,7 +55,8 @@ class PublicRegistrationTest extends TestCase
             'registration_type' => 'individual',
             'pic' => [
                 'full_name' => 'John Doe',
-                'email' => 'john@example.com',
+                'bib_name' => 'JOHN',
+                'email' => 'john@laravel.com',
                 'whatsapp' => '08123456789',
                 'gender' => 'male',
                 'date_of_birth' => '1990-01-01',
@@ -72,17 +74,17 @@ class PublicRegistrationTest extends TestCase
 
         $registration = \App\Models\Registration::first();
         $this->assertNotNull($registration);
-        $this->assertEquals('pending_payment', $registration->status);
+        $this->assertEquals(PaymentStatus::PendingPayment, $registration->status);
 
         $response->assertRedirect(route('payment.show', $registration->registration_number));
 
         // Visit Payment Page
         $this->get(route('payment.show', $registration->registration_number))
             ->assertStatus(200)
-            ->assertSee('Complete Your Payment');
+            ->assertSee('Selesaikan Pendaftaran Anda');
 
         // Upload Proof
-        Storage::fake('public');
+        Storage::fake('local');
         $file = UploadedFile::fake()->image('proof.jpg');
 
         $this->post(route('payment.store', $registration->registration_number), [
@@ -91,11 +93,12 @@ class PublicRegistrationTest extends TestCase
         ])->assertRedirect(route('payment.status', $registration->registration_number));
 
         $registration->refresh();
-        $this->assertEquals('payment_uploaded', $registration->status);
+        $this->assertEquals(PaymentStatus::PaymentVerified, $registration->status);
 
-        $this->assertDatabaseHas('payments', [
-            'registration_id' => $registration->id,
-            'status' => 'pending',
-        ]);
+        $payment = $registration->payments()->first();
+
+        $this->assertNotNull($payment);
+        $this->assertNotNull($payment->verified_at);
+        $this->assertNull($payment->rejection_reason);
     }
 }

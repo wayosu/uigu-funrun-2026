@@ -4,7 +4,6 @@ namespace App\Actions\Payment;
 
 use App\Enums\PaymentStatus;
 use App\Models\Payment;
-use App\Models\Registration;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +18,7 @@ class ProcessPaymentVerificationAction
      */
     public function execute(
         Payment $payment,
-        User $verifier,
+        ?User $verifier,
         bool $approved,
         ?string $rejectionReason = null
     ): void {
@@ -30,7 +29,7 @@ class ProcessPaymentVerificationAction
                 // Approve payment
                 $payment->update([
                     'verified_at' => now(),
-                    'verified_by' => $verifier->id,
+                    'verified_by' => $verifier?->id,
                     'rejection_reason' => null,
                 ]);
 
@@ -38,7 +37,7 @@ class ProcessPaymentVerificationAction
                 $registration->update([
                     'status' => PaymentStatus::PaymentVerified,
                     'payment_verified_at' => now(),
-                    'payment_verified_by' => $verifier->id,
+                    'payment_verified_by' => $verifier?->id,
                 ]);
 
                 // Generate BIB numbers for all participants

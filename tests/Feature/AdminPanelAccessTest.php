@@ -24,7 +24,7 @@ class AdminPanelAccessTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->get('/admin/events')
+            ->get('/admin/event-settings')
             ->assertStatus(200);
 
         $this->actingAs($user)
