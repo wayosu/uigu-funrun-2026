@@ -196,7 +196,10 @@ class ParticipantResource extends Resource
                 TextColumn::make('registration.status')
                     ->label('Payment Status')
                     ->badge()
-                    ->formatStateUsing(fn (PaymentStatus $state): string => $state->label())
+                    ->formatStateUsing(fn (PaymentStatus $state): string => match ($state) {
+                        PaymentStatus::PaymentUploaded => 'Payment Uploaded (Legacy)',
+                        default => $state->label(),
+                    })
                     ->color(fn (PaymentStatus $state): string => $state->color())
                     ->toggleable(),
                 IconColumn::make('checkin_status')
@@ -244,7 +247,12 @@ class ParticipantResource extends Resource
                 SelectFilter::make('payment_status')
                     ->label('Payment Status')
                     ->options(collect(PaymentStatus::cases())
-                        ->mapWithKeys(fn ($status) => [$status->value => $status->label()])
+                        ->mapWithKeys(fn (PaymentStatus $status) => [
+                            $status->value => match ($status) {
+                                PaymentStatus::PaymentUploaded => 'Payment Uploaded (Legacy)',
+                                default => $status->label(),
+                            },
+                        ])
                     )
                     ->query(function (Builder $query, array $data): Builder {
                         if (! isset($data['value'])) {

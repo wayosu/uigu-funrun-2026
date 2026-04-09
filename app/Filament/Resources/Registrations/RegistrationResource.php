@@ -70,7 +70,10 @@ class RegistrationResource extends Resource
                     ->icon(Heroicon::OutlinedUsers),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (PaymentStatus $state): string => $state->label())
+                    ->formatStateUsing(fn (PaymentStatus $state): string => match ($state) {
+                        PaymentStatus::PaymentUploaded => 'Payment Uploaded (Legacy)',
+                        default => $state->label(),
+                    })
                     ->color(fn (PaymentStatus $state): string => $state->color())
                     ->icon(fn (PaymentStatus $state): string => $state->icon()),
                 TextColumn::make('total_amount')
@@ -91,7 +94,12 @@ class RegistrationResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options(collect(PaymentStatus::cases())
-                        ->mapWithKeys(fn ($status) => [$status->value => $status->label()])
+                        ->mapWithKeys(fn (PaymentStatus $status) => [
+                            $status->value => match ($status) {
+                                PaymentStatus::PaymentUploaded => 'Payment Uploaded (Legacy)',
+                                default => $status->label(),
+                            },
+                        ])
                     )
                     ->multiple(),
                 SelectFilter::make('registration_type')
