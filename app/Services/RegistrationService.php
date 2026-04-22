@@ -139,7 +139,6 @@ class RegistrationService
      */
     public function canUploadPayment(Registration $registration): bool
     {
-        return $registration->status->canUploadPayment()
-            && ! $registration->isExpired();
+        return $registration->status->canUploadPayment();
     }
 }

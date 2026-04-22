@@ -1,22 +1,29 @@
 <?php
 
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\Event;
 use App\Models\RaceCategory;
 use App\Models\Registration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-describe('PaymentController', function () {
-    beforeEach(function () {
-        $this->event = Event::factory()->create();
-        $this->category = RaceCategory::factory()->create(['event_id' => $this->event->id]);
-    });
+function createRaceCategoryForPaymentTests(): RaceCategory
+{
+    $event = Event::factory()->create();
 
+    return RaceCategory::factory()->create(['event_id' => $event->id]);
+}
+
+describe('PaymentController', function () {
     it('displays payment page for pending registration with null expired_at', function () {
+        $category = createRaceCategoryForPaymentTests();
+
         $registration = Registration::factory()->create([
-            'race_category_id' => $this->category->id,
+            'race_category_id' => $category->id,
             'status' => PaymentStatus::PendingPayment,
             'expired_at' => null, // Explicitly null, no expiration
         ]);
@@ -29,8 +36,10 @@ describe('PaymentController', function () {
     });
 
     it('displays payment page for pending registration with future expired_at', function () {
+        $category = createRaceCategoryForPaymentTests();
+
         $registration = Registration::factory()->create([
-            'race_category_id' => $this->category->id,
+            'race_category_id' => $category->id,
             'status' => PaymentStatus::PendingPayment,
             'expired_at' => now()->addHours(24),
         ]);
@@ -42,8 +51,10 @@ describe('PaymentController', function () {
     });
 
     it('redirects to payment status when registration is already paid', function () {
+        $category = createRaceCategoryForPaymentTests();
+
         $registration = Registration::factory()->create([
-            'race_category_id' => $this->category->id,
+            'race_category_id' => $category->id,
             'status' => PaymentStatus::PaymentVerified,
         ]);
 
@@ -53,8 +64,10 @@ describe('PaymentController', function () {
     });
 
     it('isExpired returns false when expired_at is null', function () {
+        $category = createRaceCategoryForPaymentTests();
+
         $registration = Registration::factory()->create([
-            'race_category_id' => $this->category->id,
+            'race_category_id' => $category->id,
             'status' => PaymentStatus::PendingPayment,
             'expired_at' => null,
         ]);
@@ -63,8 +76,10 @@ describe('PaymentController', function () {
     });
 
     it('isExpired returns false when expired_at is in the future', function () {
+        $category = createRaceCategoryForPaymentTests();
+
         $registration = Registration::factory()->create([
-            'race_category_id' => $this->category->id,
+            'race_category_id' => $category->id,
             'status' => PaymentStatus::PendingPayment,
             'expired_at' => now()->addHours(24),
         ]);
@@ -73,11 +88,35 @@ describe('PaymentController', function () {
     });
 
     it('isExpired returns true when status is Expired', function () {
+        $category = createRaceCategoryForPaymentTests();
+
         $registration = Registration::factory()->create([
-            'race_category_id' => $this->category->id,
+            'race_category_id' => $category->id,
             'status' => PaymentStatus::Expired,
         ]);
 
         expect($registration->isExpired())->toBeTrue();
+    });
+
+    it('allows uploading payment proof even when expired_at is in the past', function () {
+        Storage::fake('local');
+        $category = createRaceCategoryForPaymentTests();
+
+        $registration = Registration::factory()->create([
+            'race_category_id' => $category->id,
+            'status' => PaymentStatus::PendingPayment,
+            'expired_at' => now()->subHour(),
+        ]);
+
+        $response = $this->post(route('payment.store', $registration->registration_number), [
+            'payment_method' => PaymentMethod::BankTransfer->value,
+            'payment_proof' => UploadedFile::fake()->image('proof.jpg'),
+        ]);
+
+        $response->assertRedirect(route('payment.status', $registration->registration_number));
+
+        $registration->refresh();
+
+        expect($registration->status)->toBe(PaymentStatus::PaymentVerified);
     });
 });

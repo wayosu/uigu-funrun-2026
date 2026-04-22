@@ -28,7 +28,7 @@ class RegistrationFactory extends Factory
             'pic_phone' => '08'.fake()->numerify('##########'),
             'total_amount' => fake()->numberBetween(100000, 500000),
             'status' => 'pending_payment',
-            'expired_at' => now()->addHours(48),
+            'expired_at' => null,
         ];
     }
 }

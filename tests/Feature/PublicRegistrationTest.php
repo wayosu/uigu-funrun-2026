@@ -75,6 +75,7 @@ class PublicRegistrationTest extends TestCase
         $registration = \App\Models\Registration::first();
         $this->assertNotNull($registration);
         $this->assertEquals(PaymentStatus::PendingPayment, $registration->status);
+        $this->assertNull($registration->expired_at);
 
         $response->assertRedirect(route('payment.show', $registration->registration_number));
 

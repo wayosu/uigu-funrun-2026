@@ -31,10 +31,6 @@ class PaymentService
             throw new \Exception("Cannot upload payment for registration with status: {$registration->status->label()}");
         }
 
-        if ($registration->isExpired()) {
-            throw new \Exception('Registration has expired');
-        }
-
         // Check if payment already verified - cannot re-upload
         if ($registration->status === PaymentStatus::PaymentVerified) {
             throw new \Exception('Payment already verified. Cannot upload new proof.');

@@ -49,11 +49,6 @@ class CreateRegistrationAction
             // Generate registration number
             $registrationNumber = $this->generateNumberAction->execute($category);
 
-            // Calculate expired_at (24 hours from now)
-            $paymentSettings = \App\Models\PaymentSetting::first();
-            $deadlineHours = $paymentSettings?->payment_deadline_hours ?? 24;
-            $expiredAt = now()->addHours($deadlineHours);
-
             // Create registration
             $picData = $participantsData[0];
             $registration = Registration::create([
@@ -66,7 +61,7 @@ class CreateRegistrationAction
                 'pic_phone' => $picData['whatsapp'],
                 'total_amount' => $data['total_amount'],
                 'status' => PaymentStatus::PendingPayment,
-                'expired_at' => $expiredAt,
+                'expired_at' => null,
             ]);
 
             // Create participants
